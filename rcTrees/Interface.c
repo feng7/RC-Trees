@@ -53,6 +53,7 @@ RC_Forest::RC_Forest(int n) {
   cQueue = initQueue();
   cTree = makeEmptyTree(n);
   initTreeContraction(cQueue,cTree);
+  performance = 0;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -196,5 +197,5 @@ cluster* RC_Forest::propagate()
 
 void RC_Forest::contract()
 {
-  rerun(cQueue,cTree,1);
+  rerun(cQueue,cTree,1,&performance);
 }

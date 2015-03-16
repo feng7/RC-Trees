@@ -52,8 +52,11 @@ class RC_Forest {
   Queue *cQueue;
   tree_t* cTree;
   clusterList affectedClusters;
+  long performance;
 
  public:
+
+  long getPerformance() { return performance; }
 
   node* vertex(int n) {return cTree->vertexArray+n;}
 

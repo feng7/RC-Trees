@@ -620,7 +620,11 @@ cluster* syncList(clusterList* rootList)
 // a child, and if it is a run event it runs the wake up 
 // code
 /////////////////////////////////////////////////////////////
-cluster* rerun(Queue *q,tree_t* tree, int doSynch)
+cluster *rerun(Queue *q, tree_t *tree, int doSynch) {
+	return rerun(q, tree, doSynch, NULL);
+}
+
+cluster* rerun(Queue *q,tree_t* tree, int doSynch, long *performance)
 {
   cluster* root;
   node *nd = NULL;
@@ -633,6 +637,9 @@ cluster* rerun(Queue *q,tree_t* tree, int doSynch)
   morework=1;
   //debug=1;
   while (!isEmpty(q)) {  
+  	if (performance) {
+  		++(*performance);
+  	}
     // Loop
     // Free the qnode 
     drun(assert(!isEmpty(q)));
@@ -701,11 +708,14 @@ void initTreeContraction (Queue* q, tree_t* tree) {
 // rerun since that is what an initial run is, a rerun
 // of all the code
 //////////////////////////////////////////////////////
-cluster* initialrun(Queue *q, tree_t* tree)
+cluster *initialrun(Queue *q, tree_t *tree) {
+	return initialrun(q, tree, NULL);
+}
+cluster* initialrun(Queue *q, tree_t* tree, long *performance)
 {
 
   cluster* root;
-  root = rerun(q,tree,1);
+  root = rerun(q,tree,1,performance);
   
   return(root);
 }

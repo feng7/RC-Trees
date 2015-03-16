@@ -52,4 +52,8 @@ void initTreeContraction (Queue* q, tree_t* tree);
 cluster* rerun(Queue *q,tree_t* tree,int doSynch);
 cluster* initialrun(Queue *q, tree_t* tree);
 int insertQueue (node* nd, Queue *q);
+
+
+cluster* rerun(Queue *q,tree_t* tree,int doSynch, long *performance);
+cluster* initialrun(Queue *q, tree_t* tree, long *performance);
 #endif

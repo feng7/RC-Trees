@@ -65,7 +65,7 @@ int main()
 		}
 		printf("Before the first contract\n");
   	  	F.contract();
-  	    printf("Initial links done\n");
+  	    printf("Initial links done, performance: %ld\n", F.getPerformance());
 		for(i=1;i<=n;i++)
 		{
 			int isFirstHalf = i <= n / 2;
@@ -83,6 +83,7 @@ int main()
 		}
 		printf("finish link and cut\n");
 		printf("experiment %d ended in %ld seconds\n", experiment, time(0) - t0);
+		printf("performance: %ld\n", F.getPerformance());
 	}
 }
 
