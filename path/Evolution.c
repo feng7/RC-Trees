@@ -25,7 +25,7 @@ long evaluate(std::vector<Edge> const &individual) {
 	for (int i = 0; i < sz; ++i) {
 		maxV = std::max(maxV, std::max(individual[i].source, individual[i].target));
 	}
-	RC_Forest f(maxV * 2);
+	RC_Forest f(maxV);
 	f.contract();
 	for (int i = 0; i < sz; ++i) {
 		Edge const &e = individual[i];
@@ -33,16 +33,18 @@ long evaluate(std::vector<Edge> const &individual) {
 		if (e.target < 1 || e.target > maxV) throw 6;
 		node *vs = f.vertex(e.source);
 		node *vt = f.vertex(e.target);
-		if (e.isAdd) {
-			bin_data d = pathQuery(vs, vt);
-			if (d.weight != 1) {
-				f.link(vs, vt, 1);
-				f.contract();
-			}
-		} else {
-			if (f.isEdge(vs, vt)) {
-				f.cut(vs, vt);
-				f.contract();
+		if (e.source != e.target) {
+			if (e.isAdd) {
+				bin_data d = pathQuery(vs, vt);
+				if (d.weight != 1) {
+					f.link(vs, vt, 1);
+					f.contract();
+				}
+			} else {
+				if (f.isEdge(vs, vt)) {
+					f.cut(vs, vt);
+					f.contract();
+				}
 			}
 		}
 	}
@@ -58,8 +60,8 @@ void mutate(std::vector<Edge> &individual, int n, std::mt19937 &rng) {
 }
 
 int main() {
-	const int n = 10;
-	const int m = 9;
+	const int n = 100;
+	const int m = 1000;
 
 	std::mt19937 rng;
 	std::vector<Edge> currI;
