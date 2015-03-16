@@ -6,7 +6,7 @@
 
 CC = g++
 OPTFLAGS = -O4 -finline-functions
-COPTIONS = -Wno-deprecated -Wno-unused-result
+COPTIONS = -Wno-deprecated -Wno-unused-result -std=c++11
 RCFLAGS = -DNDEBUG -DNVERBOSE 
 LDOPTIONS = 
 INCLUDES = -I. -I../rcTrees
@@ -18,11 +18,14 @@ APOBJS = Data.o Application.o
 
 all: default
 
-default:  Example
+default:  Evolution
 .c.o: 
 	$(CC) $(CFLAGS) $(RCFLAGS) -c  $*.c
 
-Example : Example.o libRCTrees
+Evolution: Evolution.o libRCTrees
+	$(LD) -o Evolution Evolution.o -lRCTrees
+
+Example: Example.o libRCTrees
 	$(LD) -o Example Example.o -lRCTrees
 
 libRCTrees: $(APOBJS) 
@@ -30,4 +33,4 @@ libRCTrees: $(APOBJS)
 	ar r libRCTrees.a $(APOBJS)      
 
 clean:
-	rm -f *.o *.a Example
+	rm -f *.o *.a Example Evolution
