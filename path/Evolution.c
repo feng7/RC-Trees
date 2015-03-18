@@ -13,8 +13,8 @@
 #include "Contract.h"
 #include "Interface.h"
 
-const int n = 50;
-const int m = 1000;
+const int n = 20;
+const int m = 100;
 
 struct Edge {
 	int source, target;
@@ -57,6 +57,7 @@ long evaluate1(std::vector<Edge> const &individual) {
 	}
 	RC_Forest f(maxV);
 	f.contract();
+	int validCount = 0;
 	for (int i = 0; i < sz; ++i) {
 		Edge const &e = individual[i];
 		if (e.source < 1 || e.source > maxV) throw 5;
@@ -69,16 +70,18 @@ long evaluate1(std::vector<Edge> const &individual) {
 				if (d.weight != 1) {
 					f.link(vs, vt, 1);
 					f.contract();
+					++validCount;
 				}
 			} else {
 				if (f.isEdge(vs, vt)) {
 					f.cut(vs, vt);
 					f.contract();
+					++validCount;
 				}
 			}
 		}
 	}
-	return f.getPerformance();
+	return f.getPerformance() + validCount;
 }
 
 void mutate(std::vector<Edge> &individual, int n, std::mt19937 &rng) {
@@ -103,6 +106,19 @@ int main0(char const *arg0) {
 		mutate(nextI, n, rng);
 		long nextF = evaluate0(nextI, arg0);
 		if (nextF >= currF) {
+			if (nextF > currF) {
+				char tmp[1024];
+				sprintf(tmp, "evolution-%ld.test", nextF);
+				FILE *srcf = fopen("evolution.in", "rt");
+				FILE *trgf = fopen(tmp, "wt");
+				for (int i = 0; i < m; ++i) {
+					int src, trg, add;
+					fscanf(srcf, "%d%d%d", &src, &trg, &add);
+					fprintf(trgf, "%d %d %d\n", src, trg, add);
+				}
+				fclose(srcf);
+				fclose(trgf);
+			}
 			currF = nextF;
 			currI = nextI;
 		}
