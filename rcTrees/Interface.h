@@ -68,6 +68,8 @@ class RC_Forest {
 
   RC_Forest(int n);
 
+  ~RC_Forest();
+
   void contract();
 
   void changeVertexData (node* v, void (*f)(unary_data* ));

@@ -52,7 +52,7 @@ int main()
 	int experiment;
 	for (experiment = 0; experiment <= 1; ++experiment) {
 		int i;
-		int n = 50000;
+		int n = 5000;
 		int t0 = time(0);
 		RC_Forest F(2*n);
 		debug = 0;
