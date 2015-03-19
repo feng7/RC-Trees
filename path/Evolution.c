@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <sys/wait.h>
 #include <time.h>
-#include <unistd.h>
 
 #include <random>
 #include <vector>
@@ -13,8 +10,9 @@
 #include "Contract.h"
 #include "Interface.h"
 
-const int n = 20;
-const int m = 100;
+const int n = 100;
+const int m = 500;
+const long powX = 10000000;
 
 struct Edge {
 	int source, target;
@@ -27,29 +25,8 @@ Edge randomEdge(std::mt19937 &rng, int n) {
 	return Edge(1 + rng() % n, 1 + rng() % n, rng() % 2);
 }
 
-long evaluate0(std::vector<Edge> const &individual, char const *arg0) {
-	FILE *f = fopen("evolution.in", "wt");
-	for (int i = 0; i < m; ++i) {
-		fprintf(f, "%d %d %d\n", individual[i].source, individual[i].target, individual[i].isAdd);
-	}
-	fclose(f);
-
-	pid_t w = fork();
-	if (w) {
-		wait(NULL);
-		f = fopen("evolution.out", "rt");
-		long rv;
-		fscanf(f, "%ld", &rv);
-		fclose(f);
-		return rv;
-	} else {
-		if (execl(arg0, arg0, "f", (char*) (NULL))) {
-			throw 89;
-		}
-	}
-}
-
-long evaluate1(std::vector<Edge> const &individual) {
+long evaluate(std::vector<Edge> const &individual) {
+	srand(237357235);
 	int maxV = 0;
 	int sz = individual.size();
 	for (int i = 0; i < sz; ++i) {
@@ -81,7 +58,7 @@ long evaluate1(std::vector<Edge> const &individual) {
 			}
 		}
 	}
-	return f.getPerformance() + validCount;
+	return f.getPerformance() + (validCount * powX);
 }
 
 void mutate(std::vector<Edge> &individual, int n, std::mt19937 &rng) {
@@ -92,61 +69,55 @@ void mutate(std::vector<Edge> &individual, int n, std::mt19937 &rng) {
 	}
 }
 
-int main0(char const *arg0) {
+int evolution() {
 	std::mt19937 rng;
 	std::vector<Edge> currI;
 	for (int i = 0; i < m; ++i) {
 		currI.push_back(randomEdge(rng, n));
 	}
-	long currF = evaluate0(currI, arg0);
+	long currF = evaluate(currI);
 	printf("0: %ld\n", currF);
 
 	for (int g = 1; ; ++g) {
 		std::vector<Edge> nextI = currI;
 		mutate(nextI, n, rng);
-		long nextF = evaluate0(nextI, arg0);
+		long nextF = evaluate(nextI);
 		if (nextF >= currF) {
 			if (nextF > currF) {
 				char tmp[1024];
 				sprintf(tmp, "evolution-%ld.test", nextF);
-				FILE *srcf = fopen("evolution.in", "rt");
 				FILE *trgf = fopen(tmp, "wt");
 				for (int i = 0; i < m; ++i) {
-					int src, trg, add;
-					fscanf(srcf, "%d%d%d", &src, &trg, &add);
-					fprintf(trgf, "%d %d %d\n", src, trg, add);
+					Edge &e = nextI[i];
+					fprintf(trgf, "%d %d %d\n", e.source, e.target, e.isAdd);
 				}
-				fclose(srcf);
 				fclose(trgf);
+				printf("%d: %ld => %ld\n", g, currF, nextF);
 			}
 			currF = nextF;
 			currI = nextI;
 		}
-		printf("%d: %ld, max = %ld\n", g, nextF, currF);
 	}
-	return 0;
-}
-
-int main1() {
-	std::vector<Edge> input;
-	FILE *f = fopen("evolution.in", "rt");
-	for (int i = 0; i < m; ++i) {
-		int src, trg, add;
-		fscanf(f, "%d%d%d", &src, &trg, &add);
-		input.push_back(Edge(src, trg, add));
-	}
-	fclose(f);
-	long rv = evaluate1(input);
-	f = fopen("evolution.out", "wt");
-	fprintf(f, "%ld\n", rv);
-	fclose(f);
 	return 0;
 }
 
 int main(int argc, char **argv) {
-	if (argc > 1 && !strcmp(argv[1], "f")) {
-		return main1();
+	if (argc == 1) {
+		return evolution();
 	} else {
-		return main0(argv[0]);
+		FILE *fin = fopen(argv[1], "rt");
+		std::vector<Edge> v;
+		int src = -1, trg, add;
+		while (fscanf(fin, "%d%d%d", &src, &trg, &add), src != -1) {
+			v.push_back(Edge(src, trg, add));
+			src = -1;
+		}
+		printf("items: %lu\n", v.size());
+		fclose(fin);
+		long fitness = evaluate(v);
+		printf("fitness = %ld\n", fitness);
+		fitness = evaluate(v);
+		printf("fitness = %ld\n", fitness);
+		return 0;
 	}
 }
