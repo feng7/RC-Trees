@@ -154,20 +154,6 @@ int deleteEdge(node* n1, node* n2, tree_t* tree)
     deprintf("Can't find the edge\n"); 
     return 0;
   }
-
-  for (int ss1 = 0; ss1 < MAX_DEGREE; ++ss1)
-  {
-      if (ss1 == s1) continue;
-      node *ngb = GET_NEIGHBOR(n1->scars[ss1].backscar);
-      if (ngb) ngb->affected = IS_AFFECTED;
-  }
-  for (int ss2 = 0; ss2 < MAX_DEGREE; ++ss2)
-  {
-      if (ss2 == s2) continue;
-      node *ngb = GET_NEIGHBOR(n2->scars[ss2].backscar);
-      if (ngb) ngb->affected = IS_AFFECTED;
-  }
-
   cluster* cl = GET_CL(n1->scars[s1].cl);
   cl->affected = DELETED;
   if(!PUSHDOWN)
